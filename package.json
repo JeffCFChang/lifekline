@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "lucide-react": "^0.561.0",
+    "lunar-typescript": "^1.8.6",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "recharts": "^2.12.7"
@@ -17,6 +18,7 @@
   "devDependencies": {
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
+    "@vercel/node": "^5.5.15",
     "@vitejs/plugin-react": "^4.2.1",
     "autoprefixer": "^10.4.19",
     "postcss": "^8.4.38",

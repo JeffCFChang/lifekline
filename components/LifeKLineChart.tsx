@@ -220,19 +220,19 @@ const LifeKLineChart: React.FC<LifeKLineChartProps> = ({ data }) => {
              </ReferenceLine>
           ))}
 
-          <Bar 
-            dataKey="bodyRange" 
-            shape={<CandleShape />} 
+          <Bar
+            dataKey="bodyRange"
+            shape={<CandleShape />}
             isAnimationActive={true}
             animationDuration={1500}
           >
-            {/* 
-              Only show label for the global Peak 
+            {/*
+              Only show label for the global Peak
               We pass the computed maxHigh to the custom label component
             */}
-             <LabelList 
-              dataKey="high" 
-              position="top" 
+             <LabelList
+              dataKey="high"
+              position="top"
               content={<PeakLabel maxHigh={maxHigh} />}
             />
           </Bar>

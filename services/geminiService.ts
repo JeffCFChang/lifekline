@@ -51,6 +51,9 @@ export const generateLifeAnalysis = async (input: UserInput): Promise<LifeDestin
         cryptoScore: mockData.cryptoScore || 5,
         cryptoYear: mockData.cryptoYear || "待定",
         cryptoStyle: mockData.cryptoStyle || "现货定投",
+        // 紫微斗数字段
+        ziWeiCore: mockData.ziWeiCore || undefined,
+        recentYears: mockData.recentYears || undefined,
       },
     };
   }
@@ -212,6 +215,9 @@ export const generateLifeAnalysis = async (input: UserInput): Promise<LifeDestin
         cryptoScore: data.cryptoScore || 5,
         cryptoYear: data.cryptoYear || "待定",
         cryptoStyle: data.cryptoStyle || "现货定投",
+        // 紫微斗数字段
+        ziWeiCore: data.ziWeiCore || undefined,
+        recentYears: data.recentYears || undefined,
       },
     };
   } catch (error) {

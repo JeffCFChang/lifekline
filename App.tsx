@@ -73,8 +73,18 @@ const App: React.FC = () => {
           throw new Error('无效的数据格式：缺少 chartPoints');
         }
 
+        // 验证并修正分数，确保不超过 100
+        const validatedChartPoints = data.chartPoints.map((point: any) => ({
+          ...point,
+          open: Math.min(100, Math.max(0, point.open || 0)),
+          close: Math.min(100, Math.max(0, point.close || 0)),
+          high: Math.min(100, Math.max(0, point.high || 0)),
+          low: Math.min(100, Math.max(0, point.low || 0)),
+          score: Math.min(100, Math.max(0, point.score || 0)),
+        }));
+
         const importedResult: LifeDestinyResult = {
-          chartData: data.chartPoints,
+          chartData: validatedChartPoints,
           analysis: {
             bazi: data.bazi || [],
             summary: data.summary || "无摘要",
@@ -268,7 +278,7 @@ const App: React.FC = () => {
               <Sparkles className="w-6 h-6" />
             </div>
             <div>
-              <h1 className="text-2xl font-serif-sc font-bold text-gray-900 tracking-wide">人生K线</h1>
+              <h1 className="text-2xl font-serif-sc font-bold text-gray-900 tracking-wide">人生K线(八字&紫微斗數)</h1>
               <p className="text-xs text-gray-500 uppercase tracking-widest">Life Destiny K-Line</p>
             </div>
           </div>
@@ -299,10 +309,12 @@ const App: React.FC = () => {
               <div className="bg-gradient-to-r from-indigo-50 to-purple-50 p-4 rounded-xl border border-indigo-100 mb-6 text-left w-full max-w-lg">
                 <h3 className="font-bold text-indigo-800 mb-2">📝 使用方法</h3>
                 <ol className="text-sm text-gray-600 space-y-1 list-decimal list-inside">
-                  <li>填写八字信息，生成专属提示词</li>
-                  <li>复制提示词到任意 AI（ChatGPT、Claude、Gemini 等）</li>
-                  <li>将 AI 返回的 JSON 数据粘贴回来</li>
+                  <li>填写出生日期时间（系统自动计算八字）</li>
+                  <li>输入访问密码（首次使用请向管理员索取）</li>
+                  <li>点击「一键生成人生K线」</li>
+                  <li>等待 AI 分析完成（约 3-5 分钟）</li>
                 </ol>
+                <p className="text-xs text-indigo-600 mt-2 font-medium">✨ 由 GPT-5 mini 强力驱动</p>
               </div>
 
               {/* 快速导入 JSON 文件 */}

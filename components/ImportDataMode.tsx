@@ -260,7 +260,7 @@ const ImportDataMode: React.FC<ImportDataModeProps> = ({ onDataImport }) => {
                     body: JSON.stringify({
                         model,
                         messages,
-                        max_completion_tokens: 16384,
+                        max_completion_tokens: 65000,
                         seed  // 添加 seed 参数让相同八字产生相似结果
                     })
                 });

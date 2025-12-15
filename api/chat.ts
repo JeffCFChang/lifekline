@@ -19,7 +19,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // 确保 baseUrl 有有效值，处理空字符串情况
     const rawBaseUrl = process.env.OPENAI_BASE_URL;
     const baseUrl = (rawBaseUrl && rawBaseUrl.trim()) ? rawBaseUrl.trim().replace(/\/+$/, '') : 'https://api.openai.com/v1';
-    const model = process.env.OPENAI_MODEL || 'gpt-4o-mini';
+    const model = process.env.OPENAI_MODEL || 'gpt-4o';
 
     if (!apiKey) {
         return res.status(500).json({ error: '服務器未配置 API Key' });
@@ -43,7 +43,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             body: JSON.stringify({
                 model,
                 messages,
-                max_completion_tokens: 65000,
+                max_completion_tokens: 16384,
                 seed: seed || undefined  // 添加 seed 参数
             })
         });

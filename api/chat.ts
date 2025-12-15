@@ -16,11 +16,21 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     // 获取 API 配置
     const apiKey = process.env.OPENAI_API_KEY;
-    const baseUrl = process.env.OPENAI_BASE_URL || 'https://api.openai.com/v1';
-    const model = process.env.OPENAI_MODEL || 'gpt-5-mini';
+    // 确保 baseUrl 有有效值，处理空字符串情况
+    const rawBaseUrl = process.env.OPENAI_BASE_URL;
+    const baseUrl = (rawBaseUrl && rawBaseUrl.trim()) ? rawBaseUrl.trim().replace(/\/+$/, '') : 'https://api.openai.com/v1';
+    const model = process.env.OPENAI_MODEL || 'gpt-4o-mini';
 
     if (!apiKey) {
         return res.status(500).json({ error: '服務器未配置 API Key' });
+    }
+
+    // 验证 baseUrl 格式
+    if (!baseUrl.startsWith('http')) {
+        return res.status(500).json({
+            error: '服務器配置錯誤',
+            details: `OPENAI_BASE_URL 格式不正確: "${baseUrl}"`
+        });
     }
 
     try {

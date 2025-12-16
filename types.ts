@@ -4,6 +4,13 @@ export enum Gender {
   FEMALE = 'Female',
 }
 
+// 歷史吉凶事件（用於校準喜用神）
+export interface HistoricalEvent {
+  year: string;                    // 發生年份 (如 "2020")
+  type: 'lucky' | 'unlucky';       // 吉 或 凶
+  description: string;             // 簡短描述 (如 "父親過世"、"升職加薪")
+}
+
 // 輸入模式：自動計算或手動輸入
 export type InputMode = 'auto' | 'manual';
 
@@ -39,6 +46,9 @@ export interface UserInput {
   modelName: string;   // 使用的模型名称
   apiBaseUrl: string;
   apiKey: string;
+
+  // 歷史吉凶事件（可選，用於校準喜用神）
+  historicalEvents?: HistoricalEvent[];
 }
 
 export interface KLinePoint {

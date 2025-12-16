@@ -1,7 +1,7 @@
 
 import React, { useState, useMemo, useEffect } from 'react';
-import { LifeDestinyResult, InputMode, CalendarType } from '../types';
-import { Copy, CheckCircle, AlertCircle, Upload, Sparkles, MessageSquare, ArrowRight, Calendar, Calculator, Edit3, Loader2, Zap, Lock } from 'lucide-react';
+import { LifeDestinyResult, InputMode, CalendarType, HistoricalEvent } from '../types';
+import { Copy, CheckCircle, AlertCircle, Upload, Sparkles, MessageSquare, ArrowRight, Calendar, Calculator, Edit3, Loader2, Zap, Lock, ChevronDown, ChevronUp, Plus, X, TrendingUp, TrendingDown } from 'lucide-react';
 import { BAZI_SYSTEM_INSTRUCTION } from '../constants';
 import {
     calculateFromSolar,
@@ -20,6 +20,10 @@ const ImportDataMode: React.FC<ImportDataModeProps> = ({ onDataImport }) => {
     const [step, setStep] = useState<1 | 2 | 3>(1);
     const [inputMode, setInputMode] = useState<InputMode>('auto');
     const [calendarType, setCalendarType] = useState<CalendarType>('solar');
+
+    // 歷史事件校準功能狀態
+    const [historicalEvents, setHistoricalEvents] = useState<HistoricalEvent[]>([]);
+    const [isEventsExpanded, setIsEventsExpanded] = useState<boolean>(false);
     const [baziInfo, setBaziInfo] = useState({
         name: '',
         gender: 'Male',
@@ -58,6 +62,35 @@ const ImportDataMode: React.FC<ImportDataModeProps> = ({ onDataImport }) => {
         localStorage.setItem('life_k_password', pwd);
         setApiError(null);
     };
+
+    // 歷史事件處理函數
+    const handleAddEvent = () => {
+        if (historicalEvents.length >= 5) return;
+        setHistoricalEvents([
+            ...historicalEvents,
+            { year: String(new Date().getFullYear() - 1), type: 'lucky', description: '' }
+        ]);
+    };
+
+    const handleUpdateEvent = (index: number, field: keyof HistoricalEvent, value: string) => {
+        const updated = [...historicalEvents];
+        updated[index] = { ...updated[index], [field]: value };
+        setHistoricalEvents(updated);
+    };
+
+    const handleRemoveEvent = (index: number) => {
+        setHistoricalEvents(historicalEvents.filter((_, i) => i !== index));
+    };
+
+    // 生成年份選項 (用於歷史事件)
+    const eventYearOptions = useMemo(() => {
+        const currentYear = new Date().getFullYear();
+        const years: number[] = [];
+        for (let y = currentYear; y >= 1950; y--) {
+            years.push(y);
+        }
+        return years;
+    }, []);
 
     // 自動計算八字
     useEffect(() => {
@@ -209,7 +242,24 @@ const ImportDataMode: React.FC<ImportDataModeProps> = ({ onDataImport }) => {
 2. 生成 **1-100 岁 (虚岁)** 的人生流年K线数据。
 3. 在 \`reason\` 字段中提供流年详批。
 4. 生成带评分的命理分析报告（包含性格分析、币圈交易分析、发展风水分析）。
+${historicalEvents.length > 0 ? `
+【历史吉凶事件校准】
+用户提供了以下真实经历的重大吉凶事件，请据此校准喜用神/忌神判断：
 
+${historicalEvents.map((event, index) => {
+    const typeStr = event.type === 'lucky' ? '吉' : '凶';
+    return `${index + 1}. ${event.year}年 - ${typeStr}：${event.description || '(未详述)'}`;
+}).join('\n')}
+
+**校准分析要求：**
+1. 对照每个事件年份的流年干支与命主八字的关系
+2. 分析该年五行对命主的影响（生、克、合、冲）
+3. 吉年：该年旺的五行可能为喜用神
+4. 凶年：该年旺的五行可能为忌神
+5. 用这些「已知结果」反推验证喜用神/忌神判断
+6. 如发现矛盾，优先以用户真实经历校准
+7. 在 summary 中简述校准结论（如："根据用户2020年凶事校准，确认XX为忌神"）
+` : ''}
 请严格按照系统指令生成 JSON 数据。务必只返回纯JSON格式数据，不要包含任何markdown代码块标记或其他文字说明。`;
     };
 
@@ -860,6 +910,99 @@ const ImportDataMode: React.FC<ImportDataModeProps> = ({ onDataImport }) => {
                             <p className="text-sm">{apiError}</p>
                         </div>
                     )}
+
+                    {/* 歷史事件校準區塊 */}
+                    <div className="bg-white border border-amber-200 rounded-xl overflow-hidden">
+                        <button
+                            type="button"
+                            onClick={() => setIsEventsExpanded(!isEventsExpanded)}
+                            className="w-full px-4 py-3 flex items-center justify-between bg-gradient-to-r from-amber-50 to-orange-50 hover:from-amber-100 hover:to-orange-100 transition-colors"
+                        >
+                            <div className="flex items-center gap-2">
+                                <span className="text-lg">📊</span>
+                                <div className="text-left">
+                                    <h3 className="font-bold text-amber-800 text-sm">历史事件校准（可选）</h3>
+                                    <p className="text-xs text-amber-600">输入过往重大吉凶事件，帮助 AI 更精准判断喜用神</p>
+                                </div>
+                            </div>
+                            {isEventsExpanded ? (
+                                <ChevronUp className="w-5 h-5 text-amber-600" />
+                            ) : (
+                                <ChevronDown className="w-5 h-5 text-amber-600" />
+                            )}
+                        </button>
+
+                        {isEventsExpanded && (
+                            <div className="p-4 space-y-3 border-t border-amber-100">
+                                {historicalEvents.map((event, index) => (
+                                    <div key={index} className="flex items-center gap-2 p-3 bg-gray-50 rounded-lg border border-gray-200">
+                                        <select
+                                            value={event.year}
+                                            onChange={(e) => handleUpdateEvent(index, 'year', e.target.value)}
+                                            className="px-2 py-1.5 bg-white border border-gray-300 rounded-md text-sm font-mono focus:ring-2 focus:ring-amber-300 focus:border-amber-400 outline-none"
+                                        >
+                                            {eventYearOptions.map((y) => (
+                                                <option key={y} value={String(y)}>{y}</option>
+                                            ))}
+                                        </select>
+
+                                        <button
+                                            type="button"
+                                            onClick={() => handleUpdateEvent(index, 'type', event.type === 'lucky' ? 'unlucky' : 'lucky')}
+                                            className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-sm font-bold transition-colors ${
+                                                event.type === 'lucky'
+                                                    ? 'bg-green-100 text-green-700 hover:bg-green-200'
+                                                    : 'bg-red-100 text-red-700 hover:bg-red-200'
+                                            }`}
+                                        >
+                                            {event.type === 'lucky' ? (
+                                                <>
+                                                    <TrendingUp className="w-4 h-4" />
+                                                    吉
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <TrendingDown className="w-4 h-4" />
+                                                    凶
+                                                </>
+                                            )}
+                                        </button>
+
+                                        <input
+                                            type="text"
+                                            value={event.description}
+                                            onChange={(e) => handleUpdateEvent(index, 'description', e.target.value)}
+                                            placeholder="简述事件（如：升职、车祸）"
+                                            className="flex-1 px-3 py-1.5 bg-white border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-amber-300 focus:border-amber-400 outline-none"
+                                        />
+
+                                        <button
+                                            type="button"
+                                            onClick={() => handleRemoveEvent(index)}
+                                            className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-md transition-colors"
+                                        >
+                                            <X className="w-4 h-4" />
+                                        </button>
+                                    </div>
+                                ))}
+
+                                {historicalEvents.length < 5 && (
+                                    <button
+                                        type="button"
+                                        onClick={handleAddEvent}
+                                        className="w-full flex items-center justify-center gap-2 px-4 py-2.5 border-2 border-dashed border-amber-300 rounded-lg text-amber-700 hover:border-amber-400 hover:bg-amber-50 transition-colors text-sm font-medium"
+                                    >
+                                        <Plus className="w-4 h-4" />
+                                        添加历史事件（{historicalEvents.length}/5）
+                                    </button>
+                                )}
+
+                                <p className="text-xs text-gray-500 text-center pt-2">
+                                    💡 提示：填写真实经历的重大吉凶年份，AI 会据此校准喜用神判断
+                                </p>
+                            </div>
+                        )}
+                    </div>
 
                     {/* 主要按鈕：直接調用 API */}
                     <button
